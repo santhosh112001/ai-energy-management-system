@@ -3,5 +3,5 @@ pandas
 numpy
 matplotlib
 fpdf
-google-generativeai
+google-genai
 openpyxl
