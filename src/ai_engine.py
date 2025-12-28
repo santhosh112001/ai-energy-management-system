@@ -1,4 +1,4 @@
-from google import genai
+import google.genai as genai
 from google.genai.errors import ClientError
 
 
@@ -39,11 +39,11 @@ DATA:
         )
         return response.text
 
-    except ClientError as e:
+    except ClientError:
         return (
             "[EXEC_SUMMARY]\nAI service temporarily unavailable.\n\n"
-            "[KEY_FINDINGS]\n- Free tier quota exhausted.\n\n"
-            "[ROOT_CAUSES]\n- API rate limit.\n\n"
-            "[CORRECTIVE_ACTIONS]\n- Retry later or use another API key.\n\n"
+            "[KEY_FINDINGS]\n- API quota or connectivity issue.\n\n"
+            "[ROOT_CAUSES]\n- Free tier limitation.\n\n"
+            "[CORRECTIVE_ACTIONS]\n- Retry later or upgrade plan.\n\n"
             "[COST_SAVINGS]\n- Not calculated.\n"
         )
