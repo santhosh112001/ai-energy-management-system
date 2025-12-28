@@ -1,0 +1,6 @@
+__pycache__/
+.env
+*.pyc
+.streamlit/
+reports/generated_reports/*.pdf
+
