@@ -17,40 +17,86 @@ st.set_page_config(
 )
 
 # --------------------------------------------------
-# PREMIUM UI STYLING
+# ADVANCED AESTHETIC STYLING (SAFE FOR STREAMLIT CLOUD)
 # --------------------------------------------------
 st.markdown("""
 <style>
+/* Background */
 body {
-    background-color: #f9fafb;
+    background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
 }
-.block-container {
-    padding-top: 2rem;
+
+/* Header */
+.main-title {
+    font-size: 36px;
+    font-weight: 800;
+    background: linear-gradient(90deg, #2563eb, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
-.card {
-    background: white;
-    padding: 18px;
-    border-radius: 14px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+.sub-title {
+    color: #6b7280;
+    font-size: 16px;
+    margin-bottom: 20px;
 }
+
+/* Glass cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+    transition: all 0.25s ease;
+}
+.glass-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.08);
+}
+
+/* KPI text */
 .kpi-title {
     font-size: 14px;
     color: #6b7280;
 }
 .kpi-value {
-    font-size: 28px;
-    font-weight: 700;
+    font-size: 30px;
+    font-weight: 800;
     color: #111827;
 }
+
+/* Section title */
 .section-title {
-    font-size: 22px;
-    font-weight: 700;
-    margin-top: 10px;
-    margin-bottom: 5px;
+    font-size: 24px;
+    font-weight: 800;
+    margin-top: 20px;
+    margin-bottom: 8px;
+    color: #111827;
 }
-.sub-text {
-    color: #6b7280;
-    font-size: 14px;
+
+/* Divider */
+hr {
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #c7d2fe, transparent);
+    margin: 25px 0;
+}
+
+/* Sidebar polish */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #111827, #1f2937);
+}
+section[data-testid="stSidebar"] * {
+    color: #e5e7eb;
+}
+
+/* Fade-in animation */
+.fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+}
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(8px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 </style>
 """, unsafe_allow_html=True)
@@ -70,18 +116,21 @@ if "pdf_path" not in st.session_state:
 # --------------------------------------------------
 # HEADER
 # --------------------------------------------------
-st.markdown("<div class='section-title'>⚡ AI-Enabled Energy Management Dashboard</div>", unsafe_allow_html=True)
-st.markdown("<div class='sub-text'>Industrial KPI monitoring • Cost loss analytics • AI insights</div>", unsafe_allow_html=True)
+st.markdown("<div class='main-title fade-in'>⚡ AI Energy Management Dashboard</div>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='sub-title fade-in'>Enterprise-grade energy analytics • Cost optimization • AI-driven insights</div>",
+    unsafe_allow_html=True
+)
 
-st.divider()
+st.markdown("<hr>", unsafe_allow_html=True)
 
 # --------------------------------------------------
-# SIDEBAR (CONTROL PANEL)
+# SIDEBAR
 # --------------------------------------------------
 with st.sidebar:
-    st.header("📂 Data Input")
+    st.header("📂 Data Control")
     uploaded_file = st.file_uploader(
-        "Upload Energy Data (CSV / Excel)",
+        "Upload Energy Data",
         type=["csv", "xlsx"]
     )
 
@@ -105,7 +154,7 @@ if uploaded_file:
     }).reset_index()
 
     # --------------------------------------------------
-    # KPI CARDS
+    # KPI GLASS CARDS
     # --------------------------------------------------
     total_loss = monthly_summary["Cost_Loss_Rs"].sum()
     avg_kpi = monthly_summary["KPI_Score"].mean()
@@ -114,34 +163,34 @@ if uploaded_file:
     col1, col2, col3 = st.columns(3)
 
     col1.markdown(f"""
-    <div class='card'>
+    <div class='glass-card fade-in'>
         <div class='kpi-title'>Monthly Energy Loss</div>
         <div class='kpi-value'>₹ {total_loss:,.0f}</div>
     </div>
     """, unsafe_allow_html=True)
 
     col2.markdown(f"""
-    <div class='card'>
+    <div class='glass-card fade-in'>
         <div class='kpi-title'>Average KPI Score</div>
         <div class='kpi-value'>{avg_kpi:.1f}</div>
     </div>
     """, unsafe_allow_html=True)
 
     col3.markdown(f"""
-    <div class='card'>
-        <div class='kpi-title'>Worst Performing Equipment</div>
+    <div class='glass-card fade-in'>
+        <div class='kpi-title'>Worst Performing Asset</div>
         <div class='kpi-value'>{worst_eq}</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.divider()
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     # --------------------------------------------------
-    # KPI TABLE WITH STATUS COLOR
+    # KPI TABLE
     # --------------------------------------------------
     st.markdown("<div class='section-title'>📋 Equipment KPI Scorecard</div>", unsafe_allow_html=True)
 
-    def highlight_kpi(val):
+    def highlight(val):
         if val < 70:
             return "background-color:#fee2e2"
         elif val < 85:
@@ -149,7 +198,7 @@ if uploaded_file:
         return "background-color:#dcfce7"
 
     styled_df = monthly_summary.style.applymap(
-        highlight_kpi, subset=["KPI_Score"]
+        highlight, subset=["KPI_Score"]
     )
 
     st.dataframe(styled_df, use_container_width=True)
@@ -157,48 +206,43 @@ if uploaded_file:
     # --------------------------------------------------
     # CHARTS
     # --------------------------------------------------
-    st.markdown("<div class='section-title'>📊 Performance Visuals</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-title'>📊 Performance Analytics</div>", unsafe_allow_html=True)
 
     colA, colB = st.columns(2)
 
     with colA:
-        st.subheader("KPI Score by Equipment")
         st.bar_chart(
             monthly_summary.set_index("Equipment")["KPI_Score"],
-            height=320
+            height=340
         )
 
     with colB:
-        st.subheader("Energy Cost Loss Distribution")
         st.bar_chart(
             monthly_summary.set_index("Equipment")["Cost_Loss_Rs"],
-            height=320
+            height=340
         )
 
-    st.divider()
+    st.markdown("<hr>", unsafe_allow_html=True)
 
     # --------------------------------------------------
-    # AI REPORT
+    # AI INSIGHTS
     # --------------------------------------------------
     if api_key:
-        if st.button("🧠 Generate AI Engineering Insights"):
+        if st.button("🧠 Generate AI Insights"):
             st.session_state.ai_report = generate_ai_insights(
                 monthly_summary, api_key
             )
             st.session_state.pdf_ready = False
             st.session_state.pdf_path = None
-            st.success("AI insights generated successfully")
+            st.success("AI insights generated")
 
     if st.session_state.ai_report:
         with st.expander("🧠 AI Engineering Insights", expanded=True):
             st.write(st.session_state.ai_report)
 
-        # --------------------------------------------------
-        # PDF EXPORT
-        # --------------------------------------------------
-        st.markdown("<div class='section-title'>📄 Management Report</div>", unsafe_allow_html=True)
+        st.markdown("<div class='section-title'>📄 Executive Report</div>", unsafe_allow_html=True)
 
-        if st.button("Generate Monthly PDF Report"):
+        if st.button("Generate Monthly PDF"):
             pdf_path = "reports/generated_reports/Monthly_Energy_Report.pdf"
             generate_pdf(
                 st.session_state.ai_report,
@@ -207,12 +251,12 @@ if uploaded_file:
             )
             st.session_state.pdf_ready = True
             st.session_state.pdf_path = pdf_path
-            st.success("PDF report generated successfully")
+            st.success("PDF generated successfully")
 
     if st.session_state.pdf_ready and st.session_state.pdf_path:
         with open(st.session_state.pdf_path, "rb") as pdf_file:
             st.download_button(
-                "⬇ Download PDF Report",
+                "⬇ Download PDF",
                 pdf_file,
                 file_name="Monthly_Energy_Report.pdf",
                 mime="application/pdf"
