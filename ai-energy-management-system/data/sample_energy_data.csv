@@ -1,0 +1,8 @@
+Date,Equipment,Rated_kW,Actual_kWh,Operating_Hours,Cost_per_kWh
+2025-01-01,Air Compressor,75,560,10,8
+2025-01-02,Air Compressor,75,610,10,8
+2025-01-01,Chiller-1,120,780,12,8
+2025-01-02,Chiller-1,120,840,12,8
+2025-01-01,Chiller-2,110,720,11,8
+2025-01-02,Chiller-2,110,705,11,8
+
